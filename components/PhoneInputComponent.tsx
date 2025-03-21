@@ -20,18 +20,18 @@ export default function PhoneInputComponent({ defaultValue, onPhoneChange }: { d
     return (
         <View>
             <PhoneInput
-                theme={"light"}
+                theme={"dark"}
                 phoneInputStyles={{
                     container: {
-                        backgroundColor: 'white',
-                        borderWidth: 0,
-                        borderColor: undefined,
+                        backgroundColor:'transparent',
+                        borderWidth: 1,
+                        borderColor: "#636C7C",
                         borderRadius: 5,
                         overflow:'hidden'
                         
                     },
                     flagContainer: {
-                        backgroundColor: '#E9E9E9',
+                        backgroundColor: '#3D4149',
                         borderTopLeftRadius: 0,
                         borderBottomLeftRadius: 0,
                         justifyContent: 'center',
@@ -42,16 +42,16 @@ export default function PhoneInputComponent({ defaultValue, onPhoneChange }: { d
                 }}
                 modalStyles={{
                     modal: {
-                        backgroundColor: '#F1F1F1',
+                        backgroundColor: '#31363F' ,
                         borderWidth: 0,
                     },
                     searchInput: {
-                        backgroundColor: 'white',
+                        backgroundColor: '#222831',
                         borderWidth: 0
 
                     },
                     countryButton: {
-                        backgroundColor: "white",
+                        backgroundColor:'#3D4149',
                         borderWidth: 0
                     }
                 }}
@@ -63,7 +63,7 @@ export default function PhoneInputComponent({ defaultValue, onPhoneChange }: { d
                 onChangeSelectedCountry={handleSelectedCountry}
                 keyboardType="number-pad"
             />
-            {selectedCountry != null && isValidPhoneNumber(inputValue, selectedCountry) ? <></> : <Text style={styles.lightText}>Please input valid phone number.</Text>}
+            {selectedCountry != null && isValidPhoneNumber(inputValue, selectedCountry) ? <></> : <Text style={styles.darkText}>Please input valid phone number.</Text>}
         </View>
     );
 }

@@ -17,7 +17,7 @@ export default function Profile() {
             setEmail(user.userEmail)
             setPhone(user.userPhoneNumber)
             setUserName(user.userName)
-            console.log(user.userName)
+            console.log(user.userPhoneNumber)
             setSelectedImage(user.userProfile)
         }
     }, [user])
@@ -90,10 +90,10 @@ export default function Profile() {
                 <View style={styles.formContainer}>
                     <Image source={selectedImage ? { uri: selectedImage } : require('../../assets/default.jpg')} style={styles.pfp} />
                     <Button onPress={pickImageAsync} title="upload pfp" />
-                    <TextInput style={styles.textInput} autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} />
-                    <TextInput style={styles.textInput} autoCapitalize="none" placeholder="Email" onChangeText={setEmail} />
+                    <TextInput style={styles.textInput} autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} defaultValue={userName?userName:""} />
+                    <TextInput style={styles.textInput} autoCapitalize="none" placeholder="Email" onChangeText={setEmail} defaultValue={email?email:""} />
                     <TextInput style={styles.textInput} autoCapitalize="none" placeholder="Password" onChangeText={setPassword} secureTextEntry={true} />
-                    <PhoneInputComponent onPhoneChange={setPhone} defaultValue={phone? phone: ""} />
+                    <PhoneInputComponent onPhoneChange={setPhone} defaultValue= "+6281322334455" />
                     <Button title="save changes" onPress={() => handleUpload()} />
                 </View>
                 : <></>}

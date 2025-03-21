@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
@@ -26,9 +26,15 @@ export default function App() {
 
 export function Layout() {
   const { authState } = useAuth()
-
+  const customDarkTheme = {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: '#222831'
+    },
+  };
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={customDarkTheme}>
       <Stack.Navigator>
         {authState?.authenticated ? (
           <>
