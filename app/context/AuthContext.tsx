@@ -21,7 +21,8 @@ export interface User {
     gender: string | null
     userBalance: number | null
     userId: string | null
-    userName: string | null
+    userName: string | null,
+    userPassword: string | null
 }
 const TOKEN_KEY = "access_token"
 const REFRESH_TOKEN_KEY = "refresh_token"
@@ -56,8 +57,10 @@ export default function AuthProvider({ children }: any) {
                 BirthDate: birthDate,
                 Gender: gender
             })
+            
             return response.data
         } catch (e) {
+            console.log(e)
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
@@ -79,6 +82,8 @@ export default function AuthProvider({ children }: any) {
             await SecureStore.setItemAsync(TOKEN_KEY, token)
             await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken)
             const user = await getUserData()
+            user.userPassword = password
+            // console.log(user)
             await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(user))
             setAuthState({
                 token,
@@ -88,6 +93,7 @@ export default function AuthProvider({ children }: any) {
             setUser(user)
             return result.data
         } catch (e) {
+            console.log(e)
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
@@ -185,6 +191,8 @@ export default function AuthProvider({ children }: any) {
         }
     };
     useEffect(() => {
+        // console.log(user?.userId)
+        //72dc2364-fdde-40c9-a6e7-5d9c3c87a06b
         checkAuthState()
         const loadUserData = async () => {
             const storedUser = await SecureStore.getItemAsync(USER_DATA_KEY);

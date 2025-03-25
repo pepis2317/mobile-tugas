@@ -2,8 +2,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../App";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Button, TextInput, View, StyleSheet ,Text } from "react-native";
+import { TextInput, View, StyleSheet ,Text, ScrollView } from "react-native";
 import TextInputComponent from "../../components/TextInputComponent";
+import GreenButton from "../../components/GreenButton";
 
 
 type LoginProps = NativeStackScreenProps<RootStackParamList, "Login">;
@@ -18,27 +19,26 @@ export default function Login({ navigation }: LoginProps) {
         }
     }
     return (
-        <View>
-            <Text>asshol</Text>
+        <ScrollView style={{marginTop:25}}>
             <View style={styles.formContainer}>
-                <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail}/>
+                <TextInputComponent  autoCapitalize="none" placeholder="Email" onChangeText={setEmail}/>
                 <TextInputComponent autoCapitalize="none" secureTextEntry={true} placeholder="Password" onChangeText={setPassword}/>
-                <Button onPress={login} title="Log in" />
-                <Button onPress={() => { navigation.navigate("Register") }} title="Register" />
+                <GreenButton onPress={login} style={{width:"100%"}} title="Log in" />
+                <Text style={{color:'white',textDecorationLine: 'underline'}} onPress={()=>navigation.navigate("Register")}>New to our app? Register here</Text>
             </View>
 
-        </View>
+        </ScrollView>
     )
 }
 const styles = StyleSheet.create({
     formContainer: {
+        alignItems:'center',
+        justifyContent:'center',
+
         padding: 10,
         gap: 10
     },
     textInput: {
-        backgroundColor: "white",
-        height: 50,
-        padding: 10,
-        borderRadius: 5
+        width:"100%"
     }
 })

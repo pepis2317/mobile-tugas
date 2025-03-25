@@ -1,18 +1,30 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import PhoneInput, { ICountry, isValidPhoneNumber } from "react-native-international-phone-number";
 
 
 
-export default function PhoneInputComponent({ defaultValue, onPhoneChange }: { defaultValue: string, onPhoneChange: (text: string) => void }) {
+export default function PhoneInputComponent({ defaultVal, onPhoneChange }: { defaultVal: string, onPhoneChange: (text: string) => void }) {
     const [selectedCountry, setSelectedCountry] = useState<null | ICountry>(null);
-    const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState("")
+    const [defaultValue, setDefaultValue] = useState("");
     function handleInputValue(phoneNumber: string) {
-        let phoneString = selectedCountry?.callingCode + phoneNumber
-        phoneString = phoneString.replace(/\s/g, '');
-        onPhoneChange(phoneString.trim())
+        let phoneString = phoneNumber;
+
+        if (phoneNumber === "") {
+            onPhoneChange("");
+        } else {
+            phoneString = selectedCountry?.callingCode + phoneNumber;
+            phoneString = phoneString.replace(/\s/g, '');
+            onPhoneChange(phoneString.trim());
+        }
         setInputValue(phoneNumber);
     }
+    useEffect(() => {
+        if (defaultVal) {
+          setDefaultValue(defaultVal);
+        }
+      }, [defaultVal]);
     function handleSelectedCountry(country: ICountry) {
         setSelectedCountry(country);
     }
@@ -58,8 +70,8 @@ export default function PhoneInputComponent({ defaultValue, onPhoneChange }: { d
                 value={inputValue}
                 onChangePhoneNumber={handleInputValue}
                 selectedCountry={selectedCountry}
-                defaultValue={defaultValue}
                 defaultCountry="ID"
+                defaultValue={defaultValue}
                 onChangeSelectedCountry={handleSelectedCountry}
                 keyboardType="number-pad"
             />
