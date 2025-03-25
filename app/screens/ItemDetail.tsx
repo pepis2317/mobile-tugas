@@ -75,7 +75,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
             if (response.error) {
                 console.log(response)
             } else {
-                navigation.goBack()
+                setInCart(true)
             }
         }
 
@@ -119,7 +119,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
                         </View>
 
                     </TouchableOpacity> : <></>}
-                {inCart ? <GreenButton title="View in cart"/> :
+                {inCart ? <GreenButton title="View in cart" onPress={()=>navigation.navigate("Cart")}/> :
                     <View>
                         <View style={styles.quantity}>
                             <TouchableOpacity style={styles.quantityButton} onPress={() => quantity > 1 ? setQuantity(quantity - 1) : setQuantity(quantity)}>

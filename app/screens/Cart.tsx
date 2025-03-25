@@ -40,7 +40,7 @@ export default function Cart({ navigation }: CartProps) {
             if (res.error) {
                 console.log(res.error)
             } else {
-                navigation.goBack()
+                navigation.navigate("Orders")
             }
 
         }
