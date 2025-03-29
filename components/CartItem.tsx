@@ -6,7 +6,7 @@ import GreenButton from "./GreenButton";
 import axios from "axios";
 import { API_URL } from "../app/context/AuthContext";
 
-export default function CartItem({ cartItem, onDelete }: { cartItem: CartItemResponse, onDelete:(itemId:string)=>void }) {
+export default function CartItem({ cartItem, onDelete, onButtonPress }: { cartItem: CartItemResponse, onDelete:(itemId:string)=>void, onButtonPress:()=>void }) {
     const [defaultValue, setDefaultValue] = useState(cartItem.quantity);
     const [quantity, setQuantity] = useState(cartItem.quantity);
     const [hasChanged, setHasChanged] = useState(false);
@@ -49,18 +49,23 @@ export default function CartItem({ cartItem, onDelete }: { cartItem: CartItemRes
         await editQuantity()
         setDefaultValue(quantity)
         setHasChanged(false)
+        onButtonPress()
     }
     const handleDeletePress = async ()=>{
         await deleteCartItem()
         onDelete(cartItem.item.itemId)
+        onButtonPress()
     }
     return (
-        <View style={{ padding: 20, gap: 10 }}>
-            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+        <View style={{ padding: 15,         borderStyle: 'solid',
+            borderColor: '#31363F',
+            borderBottomWidth: 1,}}>
+            <View style={{ flexDirection: 'row', gap: 15, alignItems: 'center' }}>
                 {cartItem.item.thumbnail ? <Image src={cartItem.item.thumbnail} style={styles.thumbnail} /> : <View style={styles.thumbnail}><ImageIcon size={50} color={"#636C7C"} /></View>}
                 <View>
-                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20 }} numberOfLines={2} ellipsizeMode="tail">{cartItem.item.itemName}</Text>
-                    <Text style={{ color: 'white' }}>${cartItem.item.hargaPerItem}</Text>
+                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }} numberOfLines={2} ellipsizeMode="tail">{cartItem.item.itemName}</Text>
+                    <Text style={{ color: 'white', fontSize:12 }}>${cartItem.item.hargaPerItem}</Text>
+                    <Text style={{ color: 'white', fontSize:12 }}>Total Price: ${cartItem.item.hargaPerItem * quantity}</Text>
                 </View>
             </View>
             <View style={styles.quantity}>
@@ -74,7 +79,8 @@ export default function CartItem({ cartItem, onDelete }: { cartItem: CartItemRes
                     <Plus size={20} color={"white"} />
                 </TouchableOpacity>
             </View>
-            {hasChanged ? <>
+            {hasChanged ? 
+            <View style={{marginTop:10}}>
                 {quantity == 0 ?
                     <TouchableOpacity style={styles.redButton} onPress={()=>handleDeletePress()}>
                         <Text style={{ color: 'white' }}>Remove from cart</Text>
@@ -82,7 +88,7 @@ export default function CartItem({ cartItem, onDelete }: { cartItem: CartItemRes
                     :
                     <GreenButton title="Edit Quantity" onPress={() => handleEditPress()} />
                 }
-            </> : <></>}
+            </View> : <></>}
 
 
         </View>
@@ -98,7 +104,11 @@ const styles = StyleSheet.create({
     },
     quantity: {
         flexDirection: 'row',
-        backgroundColor: '#31363F',
+        borderStyle: 'solid',
+        borderColor: '#636C7C',
+        marginTop:10,
+        borderWidth: 1,
+
         width: "100%",
         padding: 10,
         borderRadius: 5,
@@ -120,13 +130,13 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     thumbnail: {
-        width: 100,
+        width: 90,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#31363F',
         overflow: 'hidden',
 
-        height: 100,
+        height: 90,
         borderRadius: 5,
     },
     info: {

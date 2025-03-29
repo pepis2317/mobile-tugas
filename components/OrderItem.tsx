@@ -1,6 +1,6 @@
 import { View, Text, Image, StyleSheet } from "react-native";
 import { OrderResponse } from "../models/OrderResponse";
-import { ImageIcon } from "lucide-react-native";
+import { CircleCheck, ImageIcon } from "lucide-react-native";
 import GreenButton from "./GreenButton";
 import axios from "axios";
 import { API_URL } from "../app/context/AuthContext";
@@ -26,7 +26,7 @@ export default function OrderItem({ orderItem }: { orderItem: OrderResponse }) {
         }
     }
     return (
-        <View style={{ padding: 10, gap: 5 }}>
+        <View style={{ padding: 15, borderStyle: 'solid', borderColor: '#31363F', borderBottomWidth: 1, }}>
             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
                 {orderItem.item.thumbnail ? <Image src={orderItem.item.thumbnail} style={styles.thumbnail} /> : <View style={styles.thumbnail}><ImageIcon size={50} color={"#636C7C"} /></View>}
                 <View>
@@ -36,10 +36,16 @@ export default function OrderItem({ orderItem }: { orderItem: OrderResponse }) {
                 </View>
             </View>
             {orderItem.orderDetails == "Arrived" ?
-                <>
-                    {confirmed?<View style={styles.greyButton}><Text style={{color:'#222831'}}>Order Confirmed</Text></View>:<GreenButton title={"Confirm Arrival"} onPress={() => handleConfirmPress()} />}
-                    
-                </>
+                <View style={{marginTop:10}}>
+                    {confirmed ?
+                        <View style={styles.greyButton}>
+                            <CircleCheck size={20} color={"#5CCFA3"}/>
+                        </View>
+                        :
+                        <GreenButton title={"Confirm Arrival"} onPress={() => handleConfirmPress()} />
+                    }
+
+                </View>
 
                 : <></>}
 
@@ -80,13 +86,13 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     thumbnail: {
-        width: 100,
+        width: 90,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#31363F',
         overflow: 'hidden',
 
-        height: 100,
+        height: 90,
         borderRadius: 5,
     },
     info: {
