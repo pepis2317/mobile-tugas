@@ -15,6 +15,9 @@ import { ShopResponse } from './models/ShopResponse';
 import NavBar from './components/NavBar';
 import Cart from './app/screens/Cart';
 import Orders from './app/screens/Orders';
+import MyShop from './app/screens/MyShop';
+import CreateItem from './app/screens/CreateItem';
+import EditItem from './app/screens/EditItem';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -23,8 +26,11 @@ export type RootStackParamList = {
   Register: undefined;
   ItemDetail: { item: ItemResponse };
   Shop: { shop: ShopResponse }
+  CreateItem: {shop:ShopResponse}
   Cart: undefined
   Orders: undefined
+  MyShop: undefined,
+  EditItem:{item:ItemResponse}
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
@@ -32,7 +38,7 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <StatusBar style="dark" />
+      <StatusBar backgroundColor="#222831" />
       <Layout />
 
     </AuthProvider>
@@ -54,17 +60,60 @@ export function Layout() {
     <NavigationContainer theme={customDarkTheme} >
       <Stack.Navigator screenOptions={{
         headerStyle: {
-          backgroundColor: '#31363F'
+          backgroundColor: '#222831'
         },
+        animation: "none"
       }}>
         {authState?.authenticated ? (
           <>
             <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-            <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-            <Stack.Screen name="ItemDetail" component={ItemDetail} options={{ headerTitle: "" }} />
-            <Stack.Screen name="Shop" component={Shop} options={{ headerTitle: "" }} />
-            <Stack.Screen name="Cart" component={Cart} options={{ headerShown: false }} />
-            <Stack.Screen name="Orders" component={Orders} options={{ headerShown: false }} />
+            <Stack.Screen name="Profile" component={Profile}options={{
+              headerTitle: "Profile",
+              headerTitleAlign: 'center',
+              headerTitleStyle: {
+                fontSize: 16
+              },
+              headerLeft: () => (<></>)
+            }} />
+            <Stack.Screen name="ItemDetail" component={ItemDetail} options={{
+              headerTitle: "",
+            }} />
+            <Stack.Screen name="EditItem" component={EditItem} options={{
+              headerTitle: "",
+            }} />
+            <Stack.Screen name="CreateItem" component={CreateItem} options={{
+              headerTitle: "",
+            }} />
+            <Stack.Screen name="Shop" component={Shop} options={{
+              headerTitle: "Shop",
+              headerTitleAlign: 'center',
+              headerTitleStyle: {
+                fontSize: 16
+              },
+            }} />
+            <Stack.Screen name="MyShop" component={MyShop} options={{
+              headerTitle: "My Shop",
+              headerTitleAlign: 'center',
+              headerTitleStyle: {
+                fontSize: 16
+              },
+            }} />
+            <Stack.Screen name="Cart" component={Cart} options={{
+              headerTitle: "Cart",
+              headerTitleAlign: 'center',
+              headerTitleStyle: {
+                fontSize: 16
+              },
+              headerLeft: () => (<></>)
+            }} />
+            <Stack.Screen name="Orders" component={Orders} options={{
+              headerTitle: "Orders",
+              headerTitleAlign: 'center',
+              headerTitleStyle: {
+                fontSize: 16
+              },
+              headerLeft: () => (<></>)
+            }} />
           </>
 
         ) : (

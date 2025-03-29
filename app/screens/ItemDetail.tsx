@@ -1,4 +1,4 @@
-import { ScrollView, Text, Image, View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
+import { ScrollView, Text, Image, View, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator } from "react-native";
 import { RootStackParamList } from "../../App";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ImageIcon, Minus, Plus } from "lucide-react-native";
@@ -19,6 +19,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
     const [ownerPfp, setOwnerPfp] = useState("")
     const [quantity, setQuantity] = useState(1)
     const [inCart, setInCart] = useState(false)
+    const [loading, setLoading] = useState(false)
     const checkInCart = async () => {
         try {
             const response = await axios.get(`${API_URL}/check-cart/${user?.userId}/${item.itemId}`)
@@ -63,6 +64,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
                 itemId: item.itemId,
                 quantity: quantity
             })
+            setLoading(false)
             return response.data
         } catch (e) {
             console.log(e)
@@ -71,6 +73,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
     }
     const handleAddPress = async () => {
         if (user?.userId) {
+            setLoading(true)
             const response = await addToCart()
             if (response.error) {
                 console.log(response)
@@ -96,12 +99,18 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
     return (
         <ScrollView>
             {images.length > 0 ? <Carousel images={images} /> : <View style={styles.imageContainer}><ImageIcon size={50} color={"#636C7C"} /></View>}
-            <View style={{ padding: 10, gap: 10, marginBottom: 300 }}>
+            <View style={{ padding: 15, marginBottom: 300, paddingTop: 10 }}>
                 <View style={styles.info}>
                     <Text style={{ color: "white", fontWeight: 'bold', fontSize: 24 }} numberOfLines={2} ellipsizeMode="tail">{item.itemName}</Text>
-                    <Text style={{ color: "white", fontWeight: 'bold', fontSize: 20 }}>${item.hargaPerItem}</Text>
                     <Text style={{ color: "white" }}>{item.quantity} available</Text>
-                    <Text style={{ color: "white" }}>{item.itemDesc}</Text>
+                    <View style={styles.priceContainer}>
+                        <Text style={{ color: "white", fontSize: 16 }}>${item.hargaPerItem}</Text>
+                    </View>
+                    <View style={{ marginBottom: 15 }}>
+                        <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Description</Text>
+                        <Text style={{ color: "white" }}>{item.itemDesc}</Text>
+                    </View>
+
                 </View>
                 {shopData ?
                     <TouchableOpacity style={styles.shopInfo} onPress={() => navigation.navigate("Shop", { shop: shopData })}>
@@ -118,8 +127,11 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
                             </TouchableOpacity>
                         </View>
 
-                    </TouchableOpacity> : <></>}
-                {inCart ? <GreenButton title="View in cart" onPress={()=>navigation.navigate("Cart")}/> :
+                    </TouchableOpacity> :
+                    <View style={{marginBottom:20}}>
+                        <ActivityIndicator size="small" color="#636C7C" />
+                    </View>}
+                {inCart ? <GreenButton title="View in cart" onPress={() => navigation.navigate("Cart")} /> :
                     <View>
                         <View style={styles.quantity}>
                             <TouchableOpacity style={styles.quantityButton} onPress={() => quantity > 1 ? setQuantity(quantity - 1) : setQuantity(quantity)}>
@@ -133,7 +145,12 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
                             </TouchableOpacity>
                         </View>
 
-                        <GreenButton title={"Add to cart"} onPress={() => handleAddPress()} />
+                        {loading ?
+                            <View>
+                                <ActivityIndicator size="small" color="#636C7C" />
+                            </View>
+                            :
+                            <GreenButton title={"Add to cart"} onPress={() => handleAddPress()} />}
                     </View>
                 }
 
@@ -144,9 +161,23 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
     )
 }
 const styles = StyleSheet.create({
+    priceContainer: {
+        padding: 5,
+        borderStyle: 'dashed',
+        borderColor: '#636C7C',
+        marginTop: 10,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderRadius: 5,
+    },
     quantity: {
         flexDirection: 'row',
-        backgroundColor: '#31363F',
+        borderStyle: 'solid',
+        borderColor: '#636C7C',
+
+        marginBottom: 20,
+        borderWidth: 1,
+
         width: "100%",
         padding: 10,
         borderRadius: 5,
@@ -172,6 +203,7 @@ const styles = StyleSheet.create({
         borderColor: '#636C7C',
         borderWidth: 1,
         borderRadius: 5,
+        marginBottom: 20,
         padding: 10,
         flexDirection: 'row',
         justifyContent: 'space-between'
@@ -194,6 +226,7 @@ const styles = StyleSheet.create({
     },
     info: {
         width: "100%",
+
         gap: 2
     },
     pfp: {
