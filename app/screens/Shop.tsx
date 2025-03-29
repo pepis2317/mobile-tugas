@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, FlatList } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { View, Text, ActivityIndicator, FlatList, RefreshControl } from "react-native";
 
 import { ItemResponse } from "../../models/ItemResponse";
 import { API_URL } from "../context/AuthContext";
@@ -17,11 +17,14 @@ export default function Shop({ route }: ShopProps) {
     const [searchTerm, setSearchTerm] = useState("")
     const [itemData, setItemData] = useState<ItemResponse[]>([])
     const [loading, setLoading] = useState(true)
+    const [refreshing, setRefreshing] = useState(false)
     const [owner, setOwner] = useState<UserResponse>()
     const getItems = async () => {
         try {
             const response = await axios.get(`${API_URL}/items/get-query?SearchTerm=${searchTerm}&ShopId=${shop.shopId}`)
             setItemData(response.data)
+            setLoading(false)
+            setRefreshing(false)
         } catch (e) {
             console.log(e)
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
@@ -36,10 +39,14 @@ export default function Shop({ route }: ShopProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+    const onRefresh = useCallback(() => {
+        setLoading(true)
+        setRefreshing(true)
+        getItems()
+    }, [])
     useEffect(() => {
         getItems()
         getOwner()
-        setLoading(false)
     }, [])
     const handleSearch = async () => {
         setLoading(true)
@@ -49,8 +56,10 @@ export default function Shop({ route }: ShopProps) {
 
     return (
         <View>
-
-            {loading ? <ActivityIndicator size="small" color="#636C7C" style={{ marginTop: 30 }} /> :
+            <View style={{ padding: 5, paddingLeft: 10, paddingRight: 10 }}>
+                <SearchBar onChangeText={setSearchTerm} placeholder="Search in shop..." onSubmitEditing={() => handleSearch()} returnKeyType="search" />
+            </View>
+            {loading ? <ActivityIndicator size="small" color="#636C7C" style={{marginTop:32}}/> :
 
                 <FlatList
                     ListHeaderComponent={
@@ -58,13 +67,14 @@ export default function Shop({ route }: ShopProps) {
                             <View style={{ padding: 5, gap: 10, }}>
                                 <View style={{ gap: 5 }}>
                                     <Text style={{ color: "white", fontSize: 20, fontWeight: 'bold' }}>{shop.shopName}</Text>
+                                    <Text style={{ color: "white" }}>{shop.description}</Text>
                                     <Text style={{ color: "white" }}>{shop.address}</Text>
                                     <StarRating stars={shop.rating} />
                                 </View>
                                 <Text style={{ color: "white" }}>Contact the owner:</Text>
                                 {owner ? <ChatWithUser user={owner} /> : <></>}
 
-                                <SearchBar onChangeText={setSearchTerm} placeholder="Search in store..." onSubmitEditing={() => handleSearch()} returnKeyType="search" />
+
                             </View>
 
                         </View>
@@ -73,7 +83,10 @@ export default function Shop({ route }: ShopProps) {
                     keyExtractor={(item) => item.itemId}
                     numColumns={2}
                     renderItem={({ item, index }) => <ItemCard key={index} item={item} />}
-                    contentContainerStyle={{ paddingBottom: 200 }} // Adds spacing at the bottom
+                    contentContainerStyle={{ paddingBottom: 300 }} // Adds spacing at the bottom
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
                 />
             }
 

@@ -125,59 +125,64 @@ export default function Profile({ navigation }: ProfileProps) {
         }
     }
     return (
-        <View style={{ marginTop: 50}}>
-            <ScrollView >
-                {user ?
-                    <View style={styles.formContainer}>
-                        <TouchableOpacity onPress={pickImageAsync}>
-                            <Image source={selectedImage ? { uri: selectedImage } : require('../../assets/default.jpg')} style={styles.pfp} />
-                            <View style={styles.pencil}>
-                                <Pencil size={20} color={"white"} />
-                            </View>
-                        </TouchableOpacity>
-                        {/* <GreenButton onPress={pickImageAsync} title="Change Profile Picture" /> */}
-                        <TextInputComponent autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} value={userName} />
-                        <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail} value={email} />
-                        <TextInputComponent autoCapitalize="none" placeholder="Password" onChangeText={setPassword} secureTextEntry={true} value={password} />
-                        <PhoneInputComponent onPhoneChange={setPhone} defaultVal={phone} />
-                        <TextInputComponent autoCapitalize="none" placeholder="Address" onChangeText={setAddress} defaultValue={address} />
-                        <View style={styles.datePickerContainer}>
-                            {show && (
-                                <RNDateTimePicker
-                                    value={new Date()}
-                                    mode="date"
-                                    display="default"
-                                    onChange={onChange}
-                                />
-                            )}
-
-                            <Text style={{ color: 'white', marginLeft: 5 }}>{birthDate}</Text>
-                            <GreenButton title="Select birth date" onPress={() => setShow(true)} />
+        <ScrollView >
+            {user ?
+                <View style={styles.formContainer}>
+                    <TouchableOpacity onPress={pickImageAsync}>
+                        <Image source={selectedImage ? { uri: selectedImage } : require('../../assets/default.jpg')} style={styles.pfp} />
+                        <View style={styles.pencil}>
+                            <Pencil size={20} color={"white"} />
                         </View>
-                        <View style={styles.pickerContainer}>
-                            <Picker style={{ color: 'white' }} selectedValue={gender} onValueChange={(val) => val == "none" ? setGender("") : setGender(val)}>
-                                <Picker.Item label="Select gender" value="none" />
-                                <Picker.Item label="M" value="M" />
-                                <Picker.Item label="F" value="F" />
-                            </Picker>
-                        </View>
+                    </TouchableOpacity>
+                    {/* <GreenButton onPress={pickImageAsync} title="Change Profile Picture" /> */}
+                    <TextInputComponent autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} value={userName} />
+                    <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail} value={email} />
+                    <TextInputComponent autoCapitalize="none" placeholder="Password" onChangeText={setPassword} secureTextEntry={true} value={password} />
+                    <PhoneInputComponent onPhoneChange={setPhone} defaultVal={phone} />
+                    <TextInputComponent autoCapitalize="none" placeholder="Address" onChangeText={setAddress} defaultValue={address} />
+                    <View style={styles.datePickerContainer}>
+                        {show && (
+                            <RNDateTimePicker
+                                value={new Date()}
+                                mode="date"
+                                display="default"
+                                onChange={onChange}
+                            />
+                        )}
 
-                        <GreenButton style={{ width: "100%" }} title={loading ? "Loading" : "Save Changes"} onPress={loading ? () => { } : handleUpload} />
-                        <TouchableOpacity onPress={() => onLogout!()} style={{ width: "100%", justifyContent: 'center', alignItems: 'center', backgroundColor: "#31363F", padding: 10, borderRadius: 5 }}>
-                            <Text style={{ color: 'white' }}>
-                                Log out
-                            </Text>
-                        </TouchableOpacity>
+                        <Text style={{ color: 'white', marginLeft: 5 }}>{birthDate}</Text>
+                        <GreenButton title="Select birth date" onPress={() => setShow(true)} />
                     </View>
-                    : <></>}
-            </ScrollView>
-        </View>
+                    <View style={styles.pickerContainer}>
+                        <Picker style={{ color: 'white' }} selectedValue={gender} onValueChange={(val) => val == "none" ? setGender("") : setGender(val)}>
+                            <Picker.Item label="Select gender" value="none" />
+                            <Picker.Item label="M" value="M" />
+                            <Picker.Item label="F" value="F" />
+                        </Picker>
+                    </View>
+
+                    <GreenButton style={{ width: "100%" }} title={loading ? "Loading" : "Save Changes"} onPress={loading ? () => { } : handleUpload} />
+                    <TouchableOpacity onPress={() => onLogout!()} style={{ width: "100%", justifyContent: 'center', alignItems: 'center', backgroundColor: "#31363F", padding: 10, borderRadius: 5 }}>
+                        <Text style={{ color: 'white' }}>
+                            Log out
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                : <></>}
+            {errMessage ?
+                <View style={styles.errorContainer}>
+                    {errMessage.split("; ").map((error, index) => (
+                        <Text key={index} style={{ color: 'white' }}>{error}</Text>
+                    ))}
+                </View>
+                : <></>}
+        </ScrollView>
 
     )
 }
 const styles = StyleSheet.create({
     pencil: {
-        backgroundColor: '#636C7C',
+        backgroundColor: '#31363F',
         width: 35,
         height: 35,
         borderRadius: 100,
@@ -215,6 +220,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     formContainer: {
+        marginBottom: 300,
         padding: 10,
         gap: 10,
         alignItems: 'center'
