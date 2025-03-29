@@ -13,6 +13,7 @@ import { UserResponse } from "../../models/UserResponse";
 import { ItemResponse } from "../../models/ItemResponse";
 import GreenButton from "../../components/GreenButton";
 import MyItemCard from "../../components/MyItemCard";
+import TextInputComponent from "../../components/TextInputComponent";
 
 type MyShopProps = NativeStackScreenProps<RootStackParamList, "MyShop">
 export default function MyShop({ navigation }: MyShopProps) {
@@ -22,6 +23,9 @@ export default function MyShop({ navigation }: MyShopProps) {
     const [searchTerm, setSearchTerm] = useState("")
     const [shop, setShop] = useState<ShopResponse | null>()
     const [owner, setOwner] = useState<UserResponse>()
+    const [name, setName] = useState("")
+    const [description, setDescription] = useState("")
+    const [address, setAddress] = useState("")
     const [itemData, setItemData] = useState<ItemResponse[]>([])
     const getShop = async () => {
         try {
@@ -39,6 +43,29 @@ export default function MyShop({ navigation }: MyShopProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+    const updateShop = async ()=>{
+        try {
+            const response = await axios.put(`${API_URL}/edit-shop/${shop?.shopId}`,{
+                shopName:name,
+                description:description,
+                address:address
+            })
+            return response.data
+
+        } catch (e) {
+            console.log(e)
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+    const handleShopUpdate = async ()=>{
+
+        const result = await updateShop()
+        if(result.error){
+            console.log(result.msg)
+        }else{
+            console.log("updated yay")
+        }
+    }
     const getItems = async () => {
         try {
             if (shop != null) {
@@ -54,6 +81,7 @@ export default function MyShop({ navigation }: MyShopProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const onRefresh = useCallback(() => {
         setLoading(true)
         setRefreshing(true)
@@ -69,6 +97,9 @@ export default function MyShop({ navigation }: MyShopProps) {
     useEffect(() => {
         if (shop?.shopId) {
             getItems()
+            setName(shop.shopName)
+            setDescription(shop.description)
+            setAddress(shop.address)
         }
 
     }, [shop])
@@ -101,11 +132,17 @@ export default function MyShop({ navigation }: MyShopProps) {
                         <View style={{ padding: 5 }}>
                             <View style={{ padding: 5, gap: 10, }}>
                                 <View style={{ gap: 5 }}>
-                                    <Text style={{ color: "white", fontSize: 20, fontWeight: 'bold' }}>{shop.shopName}</Text>
-                                    <Text style={{ color: "white" }}>{shop.description}</Text>
-                                    <Text style={{ color: "white" }}>{shop.address}</Text>
+                                    <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Shop Name</Text>
+                                    <TextInputComponent placeholder="Shop Name" onChangeText={setName} value={name} />
+                                    <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Shop Description</Text>
+                                    <TextInputComponent placeholder="Shop Description" onChangeText={setDescription} value={description} />
+                                    <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Shop Address</Text>
+                                    <TextInputComponent placeholder="Shop Address" onChangeText={setAddress} value={address} />
+                                    
                                     <StarRating stars={shop.rating} />
                                 </View>
+                                <GreenButton title={"Save Shop Changes"} onPress={handleShopUpdate} />
+
                                 <GreenButton title={"Add New Item"} onPress={() => navigation.navigate("CreateItem", { shop: shop })} />
                             </View>
 
