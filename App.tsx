@@ -18,6 +18,7 @@ import Orders from './app/screens/Orders';
 import MyShop from './app/screens/MyShop';
 import CreateItem from './app/screens/CreateItem';
 import EditItem from './app/screens/EditItem';
+import CreateShop from './app/screens/CreateShop';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -29,7 +30,8 @@ export type RootStackParamList = {
   CreateItem: {shop:ShopResponse}
   Cart: undefined
   Orders: undefined
-  MyShop: undefined,
+  MyShop: undefined
+  CreateShop:undefined
   EditItem:{item:ItemResponse}
 };
 
@@ -82,6 +84,9 @@ export function Layout() {
               headerTitle: "",
             }} />
             <Stack.Screen name="CreateItem" component={CreateItem} options={{
+              headerTitle: "",
+            }} />
+            <Stack.Screen name="CreateShop" component={CreateShop} options={{
               headerTitle: "",
             }} />
             <Stack.Screen name="Shop" component={Shop} options={{

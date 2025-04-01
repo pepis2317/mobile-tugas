@@ -14,6 +14,7 @@ import { ItemResponse } from "../../models/ItemResponse";
 import GreenButton from "../../components/GreenButton";
 import MyItemCard from "../../components/MyItemCard";
 import TextInputComponent from "../../components/TextInputComponent";
+import { useFocusEffect } from "@react-navigation/native";
 
 type MyShopProps = NativeStackScreenProps<RootStackParamList, "MyShop">
 export default function MyShop({ navigation }: MyShopProps) {
@@ -22,16 +23,16 @@ export default function MyShop({ navigation }: MyShopProps) {
     const [refreshing, setRefreshing] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
     const [shop, setShop] = useState<ShopResponse | null>()
-    const [owner, setOwner] = useState<UserResponse>()
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
     const [address, setAddress] = useState("")
     const [itemData, setItemData] = useState<ItemResponse[]>([])
+    const [changed, setChanged] = useState(false)
     const getShop = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-shop-by-owner/${user?.userId}`)
             if (!response.data) {
-                setShop(null)// Ensure state reflects the absence of a shop
+                setShop(null)
                 setLoading(false)
                 setRefreshing(false)
             } else {
@@ -43,12 +44,12 @@ export default function MyShop({ navigation }: MyShopProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
-    const updateShop = async ()=>{
+    const updateShop = async () => {
         try {
-            const response = await axios.put(`${API_URL}/edit-shop/${shop?.shopId}`,{
-                shopName:name,
-                description:description,
-                address:address
+            const response = await axios.put(`${API_URL}/edit-shop/${shop?.shopId}`, {
+                shopName: name,
+                description: description,
+                address: address
             })
             return response.data
 
@@ -57,13 +58,13 @@ export default function MyShop({ navigation }: MyShopProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
-    const handleShopUpdate = async ()=>{
+    const handleShopUpdate = async () => {
 
         const result = await updateShop()
-        if(result.error){
+        if (result.error) {
             console.log(result.msg)
-        }else{
-            console.log("updated yay")
+        } else {
+            onRefresh()
         }
     }
     const getItems = async () => {
@@ -81,6 +82,14 @@ export default function MyShop({ navigation }: MyShopProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+    useFocusEffect(
+        useCallback(() => {
+            setLoading(true)
+            setRefreshing(true)
+            getShop()
+            getItems()
+        }, [])
+    );
 
     const onRefresh = useCallback(() => {
         setLoading(true)
@@ -96,13 +105,23 @@ export default function MyShop({ navigation }: MyShopProps) {
     }, [user?.userId])
     useEffect(() => {
         if (shop?.shopId) {
-            getItems()
-            setName(shop.shopName)
-            setDescription(shop.description)
-            setAddress(shop.address)
+            getItems();
+            setName(shop.shopName);
+            setDescription(shop.description);
+            setAddress(shop.address);
         }
+    }, [shop]);
 
-    }, [shop])
+    useEffect(() => {
+        if (!shop) return;
+        const hasChanged =
+            shop.shopName !== name ||
+            shop.address !== address ||
+            shop.description !== description;
+
+        setChanged(hasChanged);
+    }, [name, description, address]);
+
     const handleSearch = async () => {
         setLoading(true)
         await getItems()
@@ -115,8 +134,10 @@ export default function MyShop({ navigation }: MyShopProps) {
     }
     if (shop == null) {
         return (
-            <View>
-                <Text>Nigga bitch ass</Text>
+            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 32 }}>
+                <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>You don't have a shop</Text>
+                <Text style={{ color: "white", marginBottom: 16 }}>Create your shop here vro</Text>
+                <GreenButton title={"Create Shop"} onPress={() => navigation.navigate("CreateShop")} />
             </View>
         )
     }
@@ -138,10 +159,11 @@ export default function MyShop({ navigation }: MyShopProps) {
                                     <TextInputComponent placeholder="Shop Description" onChangeText={setDescription} value={description} />
                                     <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Shop Address</Text>
                                     <TextInputComponent placeholder="Shop Address" onChangeText={setAddress} value={address} />
-                                    
+
                                     <StarRating stars={shop.rating} />
                                 </View>
-                                <GreenButton title={"Save Shop Changes"} onPress={handleShopUpdate} />
+                                {changed ? <GreenButton title={"Save Shop Changes"} onPress={handleShopUpdate} /> : <></>}
+
 
                                 <GreenButton title={"Add New Item"} onPress={() => navigation.navigate("CreateItem", { shop: shop })} />
                             </View>

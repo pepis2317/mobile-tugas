@@ -27,7 +27,7 @@ export interface User {
 const TOKEN_KEY = "access_token"
 const REFRESH_TOKEN_KEY = "refresh_token"
 const USER_DATA_KEY = "user_data"
-export const API_URL = "http://192.168.68.231:5252/api/v1"
+export const API_URL = "http://192.168.1.3:5252/api/v1"
 const AuthContext = createContext<AuthProps>({})
 
 export const useAuth = () => {
