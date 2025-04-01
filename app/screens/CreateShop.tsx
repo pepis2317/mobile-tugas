@@ -1,98 +1,68 @@
-import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import TextInputComponent from "../../components/TextInputComponent";
-import { useEffect, useState } from "react";
-import GreenButton from "../../components/GreenButton";
-import axios from "axios";
-import { API_URL, useAuth } from "../context/AuthContext";
-import { RootStackParamList } from "../../App";
+
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { View, Text, TextInput, Alert, ActivityIndicator } from "react-native";
+import { useState } from "react";
+import { RootStackParamList } from "../../App";
+import { API_URL, useAuth } from "../context/AuthContext";
+import axios from "axios";
+import GreenButton from "../../components/GreenButton";
 
-type CreateShopProps = NativeStackScreenProps<RootStackParamList, "CreateShop">
+type CreateShopProps = NativeStackScreenProps<RootStackParamList, "CreateShop">;
+
 export default function CreateShop({ navigation }: CreateShopProps) {
-    const { user } = useAuth()
-    const [name, setName] = useState("")
-    const [description, setDescription] = useState("")
-    const [address, setAddress] = useState("")
-    const [errMessage, setErrMessage] = useState("")
-    const [loading, setLoading] = useState(false)
-    const getShop = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/get-shop-by-owner/${user?.userId}`)
-            if (response.data) {
-                navigation.navigate("MyShop")
-            }
+    const { user } = useAuth();
+    const [shopName, setShopName] = useState("");
+    const [description, setDescription] = useState("");
+    const [address, setAddress] = useState("");
+    const [loading, setLoading] = useState(false);
 
-        } catch (e) {
-            console.log(e)
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+    const handleCreateShop = async () => {
+        if (!shopName || !description || !address) {
+            Alert.alert("Error", "All fields are required!");
+            return;
         }
-    }
-    const createShop = async () => {
+
+        setLoading(true);
         try {
             const response = await axios.post(`${API_URL}/create-shop`, {
-                shopName: name,
+                shopName,
                 ownerId: user?.userId,
-                description: description,
-                address: address
-            })
-            return response.data
+                description,
+                address,
+            });
 
-        } catch (e) {
-            console.log(e)
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
-        }
-    }
-    const handleCreateClick = async () => {
-        if (name == "" || description == "" || address == "") {
-            setErrMessage("All forms must be filled")
-            return
-        }
-        if (user?.userId) {
-            setLoading(true)
-            const result = await createShop()
-            if (result.error) {
-                setErrMessage(result.msg)
-                setLoading(false)
-                return
-            } else {
-                navigation.navigate("MyShop")
+            if (response.status === 200) {
+                Alert.alert("Success", "Shop created successfully!", [
+                    { text: "OK", onPress: () => navigation.replace("MyShop") },
+                ]);
             }
+        } catch (e) {
+            console.error("Error creating shop:", e);
+            Alert.alert("Error", "Failed to create shop. Please try again.");
+        } finally {
+            setLoading(false);
         }
-    }
-    useEffect(() => {
-        if (user?.userId) {
-            getShop()
-        }
-    }, [])
+    };
+
     return (
-        <ScrollView style={{ padding: 5 }}>
-            <View style={{ gap: 5 }}>
-                <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Shop Name</Text>
-                <TextInputComponent placeholder="Shop Name" onChangeText={setName} value={name} />
-                <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Shop Description</Text>
-                <TextInputComponent placeholder="Shop Description" onChangeText={setDescription} value={description} />
-                <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Shop Address</Text>
-                <TextInputComponent placeholder="Shop Address" onChangeText={setAddress} value={address} />
-                {loading ? <ActivityIndicator size="small" color="#636C7C" style={{ marginTop: 32 }} /> : <GreenButton title={"Create Shop"} onPress={handleCreateClick} />}
-
-            </View>
-            {errMessage ?
-                <View style={styles.errorContainer}>
-                    {errMessage.split("; ").map((error, index) => (
-                        <Text key={index} style={{ color: 'white' }}>{error}</Text>
-                    ))}
-                </View>
-                : <></>}
-        </ScrollView>
-    )
+        <View style={{ flex: 1, padding: 20, backgroundColor: "#1f2937", justifyContent: "center" }}>
+            <Text style={{ color: "white", fontSize: 22, fontWeight: "bold", marginBottom: 10 }}>Create Your Shop</Text>
+            <TextInput placeholder="Shop Name" placeholderTextColor="#ccc" style={styles.input} value={shopName} onChangeText={setShopName} />
+            <TextInput placeholder="Description" placeholderTextColor="#ccc" style={styles.input} value={description} onChangeText={setDescription} />
+            <TextInput placeholder="Address" placeholderTextColor="#ccc" style={styles.input} value={address} onChangeText={setAddress} />
+            {loading ? <ActivityIndicator size="large" color="#34d399" style={{ marginTop: 20 }} /> : <GreenButton title="Create Shop" onPress={handleCreateShop} />}
+        </View>
+    );
 }
-const styles = StyleSheet.create({
-    errorContainer: {
-        padding: 15,
-        borderStyle: "dashed",
-        borderColor: '#FB2C36',
-        borderWidth: 1,
-        borderRadius: 5
 
+const styles = {
+    input: {
+        backgroundColor: "#374151",
+        color: "white",
+        fontSize: 16,
+        padding: 12,
+        borderRadius: 8,
+        marginBottom: 15,
     },
-})
+};
+

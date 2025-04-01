@@ -5,7 +5,7 @@ export class ItemResponse {
     itemDesc: string;
     quantity: number;
     hargaPerItem: number;
-    thumbnail: string;
+    thumbnail?: string | null;
     constructor(itemId:string, shopId:string, itemName: string, itemDesc:string, quantity:number, hargaPerItem:number, thumbnail:string){
         this.itemId = itemId;
         this.shopId = shopId;

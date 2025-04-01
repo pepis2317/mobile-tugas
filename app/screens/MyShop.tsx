@@ -8,16 +8,15 @@ import { API_URL, useAuth } from "../context/AuthContext";
 import SearchBar from "../../components/SearchBar";
 import StarRating from "../../components/StarRating";
 import ItemCard from "../../components/ItemCard";
-import ChatWithUser from "../../components/ChatWithUser";
-import { UserResponse } from "../../models/UserResponse";
-import { ItemResponse } from "../../models/ItemResponse";
 import GreenButton from "../../components/GreenButton";
 import MyItemCard from "../../components/MyItemCard";
 import TextInputComponent from "../../components/TextInputComponent";
 import { useFocusEffect } from "@react-navigation/native";
 
-type MyShopProps = NativeStackScreenProps<RootStackParamList, "MyShop">
+type MyShopProps = NativeStackScreenProps<RootStackParamList, "MyShop">;
+
 export default function MyShop({ navigation }: MyShopProps) {
+
     const { user } = useAuth()
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
@@ -28,21 +27,28 @@ export default function MyShop({ navigation }: MyShopProps) {
     const [address, setAddress] = useState("")
     const [itemData, setItemData] = useState<ItemResponse[]>([])
     const [changed, setChanged] = useState(false)
+
     const getShop = async () => {
         try {
-            const response = await axios.get(`${API_URL}/get-shop-by-owner/${user?.userId}`)
+            console.log("Fetching shop for user:", user?.userId);
+            const response = await axios.get(`${API_URL}/get-shop-by-owner/${user?.userId}`);
             if (!response.data) {
+
                 setShop(null)
                 setLoading(false)
                 setRefreshing(false)
+
             } else {
                 setShop(response.data);
+                await getItems(response.data.shopId);
             }
-
         } catch (e) {
-            console.log(e)
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+            console.error("Error fetching shop:", e);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
         }
+
     }
     const updateShop = async () => {
         try {
@@ -74,13 +80,17 @@ export default function MyShop({ navigation }: MyShopProps) {
 
                 setItemData(response.data)
 
-                setLoading(false)
-                setRefreshing(false)
-            }
+
+    /** Ambil data items dalam shop */
+    const getItems = async (shopId: string) => {
+        try {
+            console.log("Fetching items for shop:", shopId);
+            const response = await axios.get(`${API_URL}/items/get-query?SearchTerm=${searchTerm}&ShopId=${shopId}`);
+            setItemData(response.data);
         } catch (e) {
-            console.log(e)
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+            console.error("Error fetching items:", e);
         }
+
     }
     useFocusEffect(
         useCallback(() => {
@@ -92,19 +102,22 @@ export default function MyShop({ navigation }: MyShopProps) {
     );
 
     const onRefresh = useCallback(() => {
-        setLoading(true)
-        setRefreshing(true)
-        getShop()
-        getItems()
-    }, [])
+        setLoading(true);
+        setRefreshing(true);
+        getShop();
+    }, []);
+
+    /** Panggil data toko saat user sudah tersedia */
     useEffect(() => {
         if (user?.userId) {
-            getShop()
+            getShop();
         }
+    }, [user?.userId]);
 
-    }, [user?.userId])
+    /** Panggil data items saat shop sudah tersedia */
     useEffect(() => {
         if (shop?.shopId) {
+
             getItems();
             setName(shop.shopName);
             setDescription(shop.description);
@@ -123,24 +136,27 @@ export default function MyShop({ navigation }: MyShopProps) {
     }, [name, description, address]);
 
     const handleSearch = async () => {
-        setLoading(true)
-        await getItems()
-        setLoading(false)
-    }
+        setLoading(true);
+        if (shop?.shopId) await getItems(shop.shopId);
+        setLoading(false);
+    };
+
+    /** Jika masih loading */
     if (loading) {
-        return (
-            <ActivityIndicator size="small" color="#636C7C" style={{ marginTop: 32 }} />
-        )
+        return <ActivityIndicator size="large" color="#636C7C" style={{ marginTop: 32 }} />;
     }
-    if (shop == null) {
+
+    /** Jika user belum punya shop, tampilkan UI khusus */
+    if (!shop) {
         return (
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 32 }}>
                 <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>You don't have a shop</Text>
                 <Text style={{ color: "white", marginBottom: 16 }}>Create your shop here vro</Text>
                 <GreenButton title={"Create Shop"} onPress={() => navigation.navigate("CreateShop")} />
             </View>
-        )
+        );
     }
+
     return (
 
         <View>
@@ -168,19 +184,5 @@ export default function MyShop({ navigation }: MyShopProps) {
                                 <GreenButton title={"Add New Item"} onPress={() => navigation.navigate("CreateItem", { shop: shop })} />
                             </View>
 
-                        </View>
-                    }
-                    data={itemData}
-                    keyExtractor={(item) => item.itemId}
-                    numColumns={2}
-                    renderItem={({ item, index }) => <MyItemCard key={index} item={item} />}
-                    contentContainerStyle={{ paddingBottom: 300 }} // Adds spacing at the bottom
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
-                />
-            }
-
-        </View>
-    )
+    );
 }
