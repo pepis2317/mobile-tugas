@@ -8,7 +8,7 @@ import { ItemResponse } from "../../models/ItemResponse"
 import ItemCard from "../../components/ItemCard"
 import SearchBar from "../../components/SearchBar"
 import NavBar from "../../components/NavBar"
-import { Store } from "lucide-react-native"
+import { Box } from "lucide-react-native"
 
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">
@@ -51,7 +51,7 @@ export default function Home({ navigation }: HomeProps) {
                     <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'white' }}>Bokapedia</Text>
 
                     <TouchableOpacity style={styles.shopButton} onPress={()=>navigation.navigate("MyShop")}>
-                        <Store color={"#5CCFA3"} size={20} />
+                        <Box color={"#5CCFA3"} size={20} />
                     </TouchableOpacity>
                 </View>
 

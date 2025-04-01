@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
-  Image,
 } from "react-native";
 import axios from "axios";
 import { API_URL } from "../context/AuthContext";
@@ -18,8 +17,11 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 type Shop = {
   shopId: string;
   shopName: string;
-  shopImage: string;
-  userId: string;
+  description: string;
+  address: string;
+  rating: number;
+  createdAt: string;
+  ownerId: string;
 };
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "AllShop">;
@@ -55,19 +57,22 @@ export default function AllShop() {
         })
       }
     >
-      <Image
-        source={{ uri: item.shopImage }}
-        style={styles.shopImage}
-        resizeMode="cover"
-      />
       <Text style={styles.shopName}>{item.shopName}</Text>
+      <Text style={styles.label}>Description:</Text>
+      <Text style={styles.value}>{item.description}</Text>
+
+      <Text style={styles.label}>Address:</Text>
+      <Text style={styles.value}>{item.address}</Text>
+
+      <Text style={styles.label}>Rating:</Text>
+      <Text style={styles.value}>{item.rating} / 5</Text>
     </TouchableOpacity>
   );
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#00ADB5" />
+        <ActivityIndicator size="large" color="#6b7893" />
       </View>
     );
   }
@@ -89,8 +94,8 @@ export default function AllShop() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#222831",
-    padding: 10,
+    backgroundColor: "#1f2937",
+    padding: 7,
   },
   list: {
     paddingBottom: 20,
@@ -99,24 +104,33 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   card: {
-    backgroundColor: "#393E46",
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 15,
+    backgroundColor: "#2d3748",
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
     width: "48%",
-    alignItems: "center",
-  },
-  shopImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
   shopName: {
-    color: "#EEEEEE",
-    fontSize: 14,
-    fontWeight: "600",
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "700",
     textAlign: "center",
+    marginBottom: 6,
+  },
+  label: {
+    color: "#6b7893",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  value: {
+    color: "#ffffff",
+    fontSize: 14,
+    marginBottom: 6,
   },
   center: {
     flex: 1,

@@ -73,7 +73,7 @@ export default function CreateItem({ navigation, route }: CreateItemProps) {
         })
 
         if (!result.canceled) {
-            setImages((prevImages) => [...prevImages, result.assets[0].uri]); // Add new image to list
+            setImages((prevImages) => [...prevImages, result.assets[0].uri]); 
         }
     }
     const uploadItemWithImages = async () => {
@@ -82,7 +82,7 @@ export default function CreateItem({ navigation, route }: CreateItemProps) {
             return
         }
         setLoading(true)
-        const itemData = await uploadImageData(); // Upload item data first
+        const itemData = await uploadImageData(); 
 
         if (itemData.error) {
             setErrMessage(itemData.msg)
@@ -92,9 +92,8 @@ export default function CreateItem({ navigation, route }: CreateItemProps) {
 
         const newItemId = itemData.itemId;
 
-        // Upload images one by one (gd break)
         for (const image of images) {
-            const formData = generateFormData(image, newItemId); // Generate FormData for each image
+            const formData = generateFormData(image, newItemId); 
             if (formData) {
                 const response = await uploadImage(formData);
                 if (response.error) {

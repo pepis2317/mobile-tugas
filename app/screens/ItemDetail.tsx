@@ -39,6 +39,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+    
     const getOwner = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-user-by-id?UserId=${shopData?.ownerId}`)
@@ -122,7 +123,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
                             </View>
                         </View>
                         <View style={{ gap: 5, flexDirection: "row" }}>
-                            <TouchableOpacity style={styles.contact}>
+                            <TouchableOpacity style={styles.contact} onPress={() => navigation.navigate("ChatScreen")}>
                                 <MessageCircle color={"white"} size={24} />
                             </TouchableOpacity>
                         </View>

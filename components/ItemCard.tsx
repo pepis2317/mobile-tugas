@@ -13,7 +13,7 @@ export default function ItemCard({ item}: {item: ItemResponse }) {
             <View style={styles.info}>
                 <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }} numberOfLines={2} ellipsizeMode="tail">{item.itemName == "G" ? "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nesciunt, illum?" : item.itemName} </Text>
 
-                <Text style={{ color: "white", fontSize: 10 }}>{item.quantity} available</Text>
+                <Text style={{ color: "white", fontSize: 10 }}>{item.quantity}  available</Text>
                 <Text style={{ color: "white" }}>${item.hargaPerItem}</Text>
             </View>
         </TouchableOpacity>
