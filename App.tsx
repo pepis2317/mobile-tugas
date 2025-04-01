@@ -18,6 +18,7 @@ import Orders from './app/screens/Orders';
 import MyShop from './app/screens/MyShop';
 import CreateItem from './app/screens/CreateItem';
 import EditItem from './app/screens/EditItem';
+
 import AllShop from './app/screens/AllShop'; 
 import AllShopItems from './app/screens/AllShopItems';
 import CreateShop from './app/screens/CreateShop';
@@ -30,6 +31,7 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   ItemDetail: { item: ItemResponse };
+
   Shop: { shop: ShopResponse };
   CreateItem: { shop: ShopResponse };
   Cart: undefined;
@@ -41,6 +43,7 @@ export type RootStackParamList = {
   AllShopItems: { shopId: string; userId: string };
   CreateShop: undefined; 
   ChatScreen: undefined;
+
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -79,6 +82,7 @@ export function Layout() {
         {authState?.authenticated ? (
           <>
             <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+
             <Stack.Screen
               name="Profile"
               component={Profile}
@@ -115,6 +119,7 @@ export function Layout() {
                 headerTitleStyle: { fontSize: 16 },
               }}
             />
+
 
             <Stack.Screen
               name="AllShopItems"

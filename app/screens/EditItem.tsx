@@ -22,7 +22,55 @@ export default function EditItem({ navigation, route }: EditItemProps) {
     const [price, setPrice] = useState(item.hargaPerItem.toString())
     const [description, setDescription] = useState(item.itemDesc)
 
+    const [errMessage, setErrMessage] = useState("")
+    const updateItem = async () => {
+        try {
+            const response = await axios.put(`${API_URL}/items/edit-item?ItemId=${item.itemId}`, {
+                itemName: name,
+                itemDesc: description,
+                quantity: quantity,
+                hargaPerItem: price
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+            setLoading(false)
+            return response.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+    const deleteItem = async () => {
+        try {
+            const response = await axios.delete(`${API_URL}/items/delete-item/${item.itemId}`)
+            return response.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
 
+    const handleEditPress = async () => {
+        if (name == "" || quantity == "" || price == "" || description == "") {
+            setErrMessage("All forms must be filled")
+            return
+        }
+        setLoading(true)
+        const result = await updateItem()
+        if (result.error) {
+            setErrMessage(result.msg)
+        } else {
+            navigation.goBack();
+        }
+    }
+    const handleDeletePress = async () => {
+        const result = await deleteItem()
+        if (result.error) {
+            setErrMessage(result.msg)
+        } else {
+            navigation.goBack()
+        }
+    }
     const getImages = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-images-for-item?ItemId=${item.itemId}`)
@@ -49,20 +97,21 @@ export default function EditItem({ navigation, route }: EditItemProps) {
                     <TextInputComponent placeholder="item Price" onChangeText={setPrice} inputMode="numeric" value={price} />
                     <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Description</Text>
                     <TextInputComponent placeholder="item Description" onChangeText={setDescription} value={description} />
-                    <GreenButton title="Edit Product" />
-                    <TouchableOpacity style={styles.redButton}>
-                        <Text style={{ color: 'white' }}>Remove from cart</Text>
-                    </TouchableOpacity>
+                    {loading ? <ActivityIndicator size="small" color="#636C7C" style={{ marginTop: 32 }} /> : <>
+                        <GreenButton title="Edit Product" onPress={handleEditPress} />
+                        <TouchableOpacity style={styles.redButton} onPress={handleDeletePress}>
+                            <Text style={{ color: 'white' }}>Delete Item</Text>
+                        </TouchableOpacity>
+                    </>}
 
-                    {/* <Text style={{ color: "white", fontWeight: 'bold', fontSize: 24 }} numberOfLines={2} ellipsizeMode="tail">{item.itemName}</Text> */}
-                    {/* <Text style={{ color: "white" }}>{item.quantity} available</Text>
-                    <View style={styles.priceContainer}>
-                        <Text style={{ color: "white", fontSize: 16 }}>${item.hargaPerItem}</Text>
-                    </View>
-                    <View style={{ marginBottom: 15 }}>
-                        <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Description</Text>
-                        <Text style={{ color: "white" }}>{item.itemDesc}</Text>
-                    </View> */}
+
+                    {errMessage ?
+                        <View style={styles.errorContainer}>
+                            {errMessage.split("; ").map((error, index) => (
+                                <Text key={index} style={{ color: 'white' }}>{error}</Text>
+                            ))}
+                        </View>
+                        : <></>}
 
                 </View>
 
@@ -72,6 +121,14 @@ export default function EditItem({ navigation, route }: EditItemProps) {
     )
 }
 const styles = StyleSheet.create({
+    errorContainer: {
+        padding: 15,
+        borderStyle: "dashed",
+        borderColor: '#FB2C36',
+        borderWidth: 1,
+        borderRadius: 5
+
+    },
     redButton: {
         padding: 15,
         backgroundColor: "#f56565",
@@ -146,7 +203,7 @@ const styles = StyleSheet.create({
     info: {
         width: "100%",
 
-        gap: 2
+        gap: 10
     },
     pfp: {
         borderRadius: 100,

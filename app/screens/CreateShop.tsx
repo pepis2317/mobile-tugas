@@ -1,3 +1,4 @@
+
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { View, Text, TextInput, Alert, ActivityIndicator } from "react-native";
 import { useState } from "react";
@@ -64,3 +65,4 @@ const styles = {
         marginBottom: 15,
     },
 };
+

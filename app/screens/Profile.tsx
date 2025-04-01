@@ -169,6 +169,13 @@ export default function Profile({ navigation }: ProfileProps) {
                     </TouchableOpacity>
                 </View>
                 : <></>}
+            {errMessage ?
+                <View style={styles.errorContainer}>
+                    {errMessage.split("; ").map((error, index) => (
+                        <Text key={index} style={{ color: 'white' }}>{error}</Text>
+                    ))}
+                </View>
+                : <></>}
         </ScrollView>
 
     )
@@ -213,7 +220,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     formContainer: {
-        marginBottom:300,
+        marginBottom: 300,
         padding: 10,
         gap: 10,
         alignItems: 'center'
