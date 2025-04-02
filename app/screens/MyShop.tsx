@@ -12,6 +12,7 @@ import GreenButton from "../../components/GreenButton";
 import MyItemCard from "../../components/MyItemCard";
 import TextInputComponent from "../../components/TextInputComponent";
 import { useFocusEffect } from "@react-navigation/native";
+import { ItemResponse } from "../../models/ItemResponse";
 
 type MyShopProps = NativeStackScreenProps<RootStackParamList, "MyShop">;
 
@@ -27,6 +28,7 @@ export default function MyShop({ navigation }: MyShopProps) {
     const [address, setAddress] = useState("")
     const [itemData, setItemData] = useState<ItemResponse[]>([])
     const [changed, setChanged] = useState(false)
+    const [errMessage, setErrMessage] = useState("")
 
     const getShop = async () => {
         try {
@@ -40,7 +42,7 @@ export default function MyShop({ navigation }: MyShopProps) {
 
             } else {
                 setShop(response.data);
-                await getItems(response.data.shopId);
+                await getItems();
             }
         } catch (e) {
             console.error("Error fetching shop:", e);
@@ -79,14 +81,7 @@ export default function MyShop({ navigation }: MyShopProps) {
                 const response = await axios.get(`${API_URL}/items/get-query?SearchTerm=${searchTerm}&ShopId=${shop.shopId}`)
 
                 setItemData(response.data)
-
-
-    /** Ambil data items dalam shop */
-    const getItems = async (shopId: string) => {
-        try {
-            console.log("Fetching items for shop:", shopId);
-            const response = await axios.get(`${API_URL}/items/get-query?SearchTerm=${searchTerm}&ShopId=${shopId}`);
-            setItemData(response.data);
+            }
         } catch (e) {
             console.error("Error fetching items:", e);
         }
@@ -137,7 +132,7 @@ export default function MyShop({ navigation }: MyShopProps) {
 
     const handleSearch = async () => {
         setLoading(true);
-        if (shop?.shopId) await getItems(shop.shopId);
+        if (shop?.shopId) await getItems();
         setLoading(false);
     };
 
@@ -156,9 +151,7 @@ export default function MyShop({ navigation }: MyShopProps) {
             </View>
         );
     }
-
     return (
-
         <View>
             <View style={{ padding: 5, paddingLeft: 10, paddingRight: 10 }}>
                 <SearchBar onChangeText={setSearchTerm} placeholder="Search in shop..." onSubmitEditing={() => handleSearch()} returnKeyType="search" />
@@ -178,11 +171,25 @@ export default function MyShop({ navigation }: MyShopProps) {
 
                                     <StarRating stars={shop.rating} />
                                 </View>
-                                {changed ? <GreenButton title={"Save Shop Changes"} onPress={handleShopUpdate} /> : <></>}
-
+                                <GreenButton title={"Save Shop Changes"} onPress={handleShopUpdate} />
 
                                 <GreenButton title={"Add New Item"} onPress={() => navigation.navigate("CreateItem", { shop: shop })} />
                             </View>
 
-    );
+                        </View>
+                    }
+                    data={itemData}
+                    keyExtractor={(item) => item.itemId}
+                    numColumns={2}
+                    renderItem={({ item, index }) => <MyItemCard key={index} item={item} />}
+                    contentContainerStyle={{ paddingBottom: 300 }} // Adds spacing at the bottom
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                />
+            }
+
+        </View>
+    )
+
 }

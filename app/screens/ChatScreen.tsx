@@ -9,7 +9,7 @@ export default function ChatScreen() {
   return (
     <View style={styles.container}>
       {selectedChatId ? (
-        <ChatView chatId={selectedChatId} onBack={() => setSelectedChatId(null)} />
+        <ChatView chatId={selectedChatId} onBack={() => setSelectedChatId(null)} chatAvatar={""} />
       ) : (
         <ChatList onSelectChat={setSelectedChatId} />
       )}
