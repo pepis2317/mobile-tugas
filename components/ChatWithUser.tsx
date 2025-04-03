@@ -11,11 +11,11 @@ export default function ChatWithUser({ user }: { user: UserResponse }) {
                     <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>{user.userName}</Text>
                     <Text style={{ color: 'white', fontSize: 10 }}>{user.userPhoneNumber}</Text>
                 </View>
-                
+
             </View>
             <TouchableOpacity style={styles.contact}>
-                    <MessageCircle color={"white"} size={24} />
-                </TouchableOpacity>
+                <MessageCircle color={"white"} size={24} />
+            </TouchableOpacity>
 
 
 
@@ -33,9 +33,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
-        backgroundColor:'#31363F',
-        borderRadius:5,
-        width:"100%"
+        backgroundColor: '#31363F',
+        borderRadius: 5,
+        width: "100%"
     },
     left: {
         alignItems: 'center',

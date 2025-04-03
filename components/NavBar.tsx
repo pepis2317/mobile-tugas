@@ -28,7 +28,7 @@ export default function NavBar() {
         <Box color="white" />
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")}>
+      <TouchableOpacity onPress={() => navigation.navigate("Chats")}>
         <MessageCircle color="white" />
       </TouchableOpacity>
       

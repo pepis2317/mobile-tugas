@@ -13,22 +13,14 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import { RootStackParamList } from "../../App";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { ShopResponse } from "../../models/ShopResponse";
 
-type Shop = {
-  shopId: string;
-  shopName: string;
-  description: string;
-  address: string;
-  rating: number;
-  createdAt: string;
-  ownerId: string;
-};
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "AllShop">;
 
 export default function AllShop() {
   const navigation = useNavigation<NavigationProp>();
-  const [shops, setShops] = useState<Shop[]>([]);
+  const [shops, setShops] = useState<ShopResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -47,14 +39,11 @@ export default function AllShop() {
     fetchShops();
   }, []);
 
-  const renderShop = ({ item }: { item: Shop }) => (
+  const renderShop = ({ item }: { item: ShopResponse }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() =>
-        navigation.navigate("AllShopItems", {
-          shopId: item.shopId,
-          userId: user?.userId ?? "",
-        })
+        navigation.navigate("Shop", {shop:item})
       }
     >
       <Text style={styles.shopName}>{item.shopName}</Text>
@@ -119,7 +108,7 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 18,
     fontWeight: "700",
-    textAlign: "center",
+
     marginBottom: 6,
   },
   label: {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Image } from "react-native";
 import { useAuth, API_URL } from "../context/AuthContext";
-import { UserRound } from "lucide-react-native"; 
+import { UserRound } from "lucide-react-native";
 
 interface Message {
   id: string;
@@ -65,7 +65,7 @@ export default function ChatView({ chatId, chatAvatar, onBack }: Props) {
         const res = await fetch(`${API_URL}/api/v1/get-user-by-id?UserId=${userId}`);
         if (res.ok) {
           const data: User = await res.json();
-          profileMap[userId] = data.userProfile || ""; 
+          profileMap[userId] = data.userProfile || "";
         }
       }
       setUserProfiles((prev) => ({ ...prev, ...profileMap }));
@@ -115,7 +115,7 @@ export default function ChatView({ chatId, chatAvatar, onBack }: Props) {
           data={messages}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
-            let avatarUri = chatAvatar; 
+            let avatarUri = chatAvatar;
             if (item.sender === "friend" && item.senderId) {
               avatarUri = userProfiles[item.senderId] || chatAvatar;
             }
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
 
   userMessage: {
     alignSelf: "flex-end",
-    flexDirection: "row-reverse",
+    flexDirection: "row",
   },
   botMessage: {
     alignSelf: "flex-start",

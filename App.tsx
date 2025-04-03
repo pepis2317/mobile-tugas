@@ -23,6 +23,8 @@ import AllShop from './app/screens/AllShop';
 import AllShopItems from './app/screens/AllShopItems';
 import CreateShop from './app/screens/CreateShop';
 import ChatScreen from './app/screens/ChatScreen';
+import Chats from './app/screens/Chats';
+import Chat from './app/screens/Chat';
 
 
 export type RootStackParamList = {
@@ -31,7 +33,8 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   ItemDetail: { item: ItemResponse };
-
+  Chats:undefined
+  Chat:{ChatId:string}
   Shop: { shop: ShopResponse };
   CreateItem: { shop: ShopResponse };
   Cart: undefined;
@@ -115,6 +118,24 @@ export function Layout() {
               component={ChatScreen}
               options={{
                 headerTitle: 'Chat',
+                headerTitleAlign: 'center',
+                headerTitleStyle: { fontSize: 16 },
+              }}
+            />
+            <Stack.Screen
+              name="Chats"
+              component={Chats}
+              options={{
+                headerTitle: 'Chats',
+                headerTitleAlign: 'center',
+                headerTitleStyle: { fontSize: 16 },
+              }}
+            />
+            <Stack.Screen
+              name="Chat"
+              component={Chat}
+              options={{
+                headerTitle: 'Chats',
                 headerTitleAlign: 'center',
                 headerTitleStyle: { fontSize: 16 },
               }}
