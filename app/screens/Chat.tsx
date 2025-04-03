@@ -102,6 +102,7 @@ export default function Chat({ navigation, route }: ChatProps) {
             setUserId(user.userId)
         }
     }, [user?.userId])
+    console.log(ChatId)
     return (
         <View style={{ flex: 1 }}>
             {loading || userId == "" ? <ActivityIndicator size="small" color="#636C7C" style={{ marginTop: 32 }} /> :
