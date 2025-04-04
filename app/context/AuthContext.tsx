@@ -72,12 +72,9 @@ export default function AuthProvider({ children }: any) {
     }
     const login = async (email: string, password: string) => {
         try {
-            const result = await axios.post(`${API_URL}/user-login`, null, {
-                params: {
-                    Email: email,
-                    Password: password
-                }
-            })
+            console.log("im here")
+            const result = await axios.post(`${API_URL}/user-login?Email=${encodeURIComponent(email)}&Password=${encodeURIComponent(password)}`)
+            
 
             let token = result.data.token
             let refreshToken = result.data.refreshToken

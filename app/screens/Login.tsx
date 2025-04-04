@@ -13,6 +13,7 @@ export default function Login({ navigation }: LoginProps) {
     const { onLogin } = useAuth();
     
     const login = async () => {
+        console.log(email, password)
         const result = await onLogin!(email, password);
         if (result.error) {
             alert(result.msg);

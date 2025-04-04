@@ -6,17 +6,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { API_URL, useAuth } from "../context/AuthContext";
 import MessageItem from "../../components/MessageItem";
+import { Message } from "../../models/Message";
+import useChat from "../hooks/usechat";
 
-export interface Message {
-    id: string;
-    chatId: string;
-    sender: {
-        id: string;
-        name: string;
-    };
-    messageText: string;
-    createdAt: string;
-};
+
 
 type ChatProps = NativeStackScreenProps<RootStackParamList, "Chat">
 export default function Chat({ navigation, route }: ChatProps) {
@@ -26,6 +19,9 @@ export default function Chat({ navigation, route }: ChatProps) {
     const [userId, setUserId] = useState("")
     const [input, setInput] = useState("")
     const [messages, setMessages] = useState<Message[]>([])
+    const { messages: liveMessages, isConnected, invokeSignalR } = useChat(ChatId);
+    const combinedMessages = [...messages, ...liveMessages];
+    const uniqueMessages = Array.from(new Map(combinedMessages.map((msg) => [msg.id, msg])).values());
     const fetchMessages = async () => {
         try {
             const response = await axios.get(`${API_URL}/message/chat/${ChatId}`)
@@ -49,7 +45,7 @@ export default function Chat({ navigation, route }: ChatProps) {
         }
     }
     const handleSendPress = async () => {
-        if (!input.trim() || !ChatId || !user?.userId) return;
+        if (!input.trim() || !ChatId || !user?.userId || !user.userName) return;
         const newMessage: Message = {
             id: Math.random().toString(),
             messageText: input,
@@ -60,38 +56,15 @@ export default function Chat({ navigation, route }: ChatProps) {
             createdAt: "ass",
             chatId: ChatId
         };
-
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        await invokeSignalR(userId, user.userName, input);
+        // setMessages((prevMessages) => [...prevMessages, newMessage]);
         setInput("");
         const response = await sendMessage()
         if (response.error) {
             console.log(response.msg)
         }
     }
-    // const sendMessageHandler = async () => {
-    //     if (!input.trim() || !chatId || !user?.userId) return;
 
-    //     const newMessage: Message = {
-    //         id: Math.random().toString(),
-    //         text: input,
-    //         sender: "user",
-    //     };
-
-    //     setMessages((prevMessages) => [...prevMessages, newMessage]);
-    //     setInput("");
-
-    //     try {
-    //         await fetch(`${API_URL}/message`, {
-    //             method: "POST",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify({ chatId, senderId: user.userId, messageText: input }),
-    //         });
-
-    //         fetchMessages();
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
     useEffect(() => {
         if (ChatId != "") {
             fetchMessages()
@@ -102,11 +75,10 @@ export default function Chat({ navigation, route }: ChatProps) {
             setUserId(user.userId)
         }
     }, [user?.userId])
-    console.log(ChatId)
     return (
         <View style={{ flex: 1 }}>
             {loading || userId == "" ? <ActivityIndicator size="small" color="#636C7C" style={{ marginTop: 32 }} /> :
-                <FlatList data={messages} contentContainerStyle={{ paddingBottom: 100 }} renderItem={({ item, index }) => (
+                <FlatList data={uniqueMessages} contentContainerStyle={{ paddingBottom: 100 }} renderItem={({ item, index }) => (
                     <MessageItem key={index} message={item} userId={userId} />
                 )} />}
             <View style={styles.inputContainer}>
@@ -117,11 +89,13 @@ export default function Chat({ navigation, route }: ChatProps) {
                     value={input}
                     onChangeText={setInput}
                 />
-                <TouchableOpacity style={styles.sendButton}
-                    onPress={handleSendPress}
-                >
-                    <Text style={styles.sendText}>Send</Text>
-                </TouchableOpacity>
+                {isConnected ?
+                    <TouchableOpacity style={styles.sendButton}
+                        onPress={handleSendPress}
+                    >
+                        <Text style={styles.sendText}>Send</Text>
+                    </TouchableOpacity> : <></>}
+
             </View>
 
         </View>
