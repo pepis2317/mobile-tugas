@@ -35,6 +35,7 @@ export default function EditItem({ navigation, route }: EditItemProps) {
                     "Content-Type": "application/json",
                 }
             })
+            setLoading(false)
             return response.data
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
@@ -51,17 +52,18 @@ export default function EditItem({ navigation, route }: EditItemProps) {
 
     const handleEditPress = async () => {
         if (name == "" || quantity == "" || price == "" || description == "") {
-            console.log("All ofrms must be filled")
+            setErrMessage("All forms must be filled")
             return
         }
+        setLoading(true)
         const result = await updateItem()
         if (result.error) {
             setErrMessage(result.msg)
         } else {
-            navigation.goBack()
+            navigation.goBack();
         }
     }
-    const handleDeletePress = async()=>{
+    const handleDeletePress = async () => {
         const result = await deleteItem()
         if (result.error) {
             setErrMessage(result.msg)
@@ -95,10 +97,14 @@ export default function EditItem({ navigation, route }: EditItemProps) {
                     <TextInputComponent placeholder="item Price" onChangeText={setPrice} inputMode="numeric" value={price} />
                     <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Description</Text>
                     <TextInputComponent placeholder="item Description" onChangeText={setDescription} value={description} />
-                    <GreenButton title="Edit Product" onPress={handleEditPress} />
-                    <TouchableOpacity style={styles.redButton} onPress={handleDeletePress}>
-                        <Text style={{ color: 'white' }}>Delete Item</Text>
-                    </TouchableOpacity>
+                    {loading ? <ActivityIndicator size="small" color="#636C7C" style={{ marginTop: 32 }} /> : <>
+                        <GreenButton title="Edit Product" onPress={handleEditPress} />
+                        <TouchableOpacity style={styles.redButton} onPress={handleDeletePress}>
+                            <Text style={{ color: 'white' }}>Delete Item</Text>
+                        </TouchableOpacity>
+                    </>}
+
+
                     {errMessage ?
                         <View style={styles.errorContainer}>
                             {errMessage.split("; ").map((error, index) => (
@@ -106,16 +112,6 @@ export default function EditItem({ navigation, route }: EditItemProps) {
                             ))}
                         </View>
                         : <></>}
-
-                    {/* <Text style={{ color: "white", fontWeight: 'bold', fontSize: 24 }} numberOfLines={2} ellipsizeMode="tail">{item.itemName}</Text> */}
-                    {/* <Text style={{ color: "white" }}>{item.quantity} available</Text>
-                    <View style={styles.priceContainer}>
-                        <Text style={{ color: "white", fontSize: 16 }}>${item.hargaPerItem}</Text>
-                    </View>
-                    <View style={{ marginBottom: 15 }}>
-                        <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Description</Text>
-                        <Text style={{ color: "white" }}>{item.itemDesc}</Text>
-                    </View> */}
 
                 </View>
 

@@ -14,7 +14,6 @@ export default function MyItemCard({ item }: { item: ItemResponse }) {
             {item.thumbnail ? <Image src={item.thumbnail} style={styles.thumbnail} /> : <View style={styles.thumbnail}><ImageIcon size={50} color={"#636C7C"} /></View>}
             <View style={styles.editPencil}>
                     <Pencil color={"white"} size={20} />
-                    {/* <Text>Nigga</Text> */}
                 </View>
             <View style={styles.info}>
                

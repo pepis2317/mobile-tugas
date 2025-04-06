@@ -8,47 +8,56 @@ import { API_URL, useAuth } from "../context/AuthContext";
 import SearchBar from "../../components/SearchBar";
 import StarRating from "../../components/StarRating";
 import ItemCard from "../../components/ItemCard";
-import ChatWithUser from "../../components/ChatWithUser";
-import { UserResponse } from "../../models/UserResponse";
-import { ItemResponse } from "../../models/ItemResponse";
 import GreenButton from "../../components/GreenButton";
 import MyItemCard from "../../components/MyItemCard";
 import TextInputComponent from "../../components/TextInputComponent";
+import { useFocusEffect } from "@react-navigation/native";
+import { ItemResponse } from "../../models/ItemResponse";
 
-type MyShopProps = NativeStackScreenProps<RootStackParamList, "MyShop">
+type MyShopProps = NativeStackScreenProps<RootStackParamList, "MyShop">;
+
 export default function MyShop({ navigation }: MyShopProps) {
+
     const { user } = useAuth()
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
     const [shop, setShop] = useState<ShopResponse | null>()
-    const [owner, setOwner] = useState<UserResponse>()
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
     const [address, setAddress] = useState("")
     const [itemData, setItemData] = useState<ItemResponse[]>([])
+    const [changed, setChanged] = useState(false)
+    const [errMessage, setErrMessage] = useState("")
+
     const getShop = async () => {
         try {
-            const response = await axios.get(`${API_URL}/get-shop-by-owner/${user?.userId}`)
+            console.log("Fetching shop for user:", user?.userId);
+            const response = await axios.get(`${API_URL}/get-shop-by-owner/${user?.userId}`);
             if (!response.data) {
-                setShop(null)// Ensure state reflects the absence of a shop
+
+                setShop(null)
                 setLoading(false)
                 setRefreshing(false)
+
             } else {
                 setShop(response.data);
+                await getItems();
             }
-
         } catch (e) {
-            console.log(e)
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+            console.error("Error fetching shop:", e);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
         }
+
     }
-    const updateShop = async ()=>{
+    const updateShop = async () => {
         try {
-            const response = await axios.put(`${API_URL}/edit-shop/${shop?.shopId}`,{
-                shopName:name,
-                description:description,
-                address:address
+            const response = await axios.put(`${API_URL}/edit-shop/${shop?.shopId}`, {
+                shopName: name,
+                description: description,
+                address: address
             })
             return response.data
 
@@ -57,13 +66,13 @@ export default function MyShop({ navigation }: MyShopProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
-    const handleShopUpdate = async ()=>{
+    const handleShopUpdate = async () => {
 
         const result = await updateShop()
-        if(result.error){
+        if (result.error) {
             console.log(result.msg)
-        }else{
-            console.log("updated yay")
+        } else {
+            onRefresh()
         }
     }
     const getItems = async () => {
@@ -72,56 +81,77 @@ export default function MyShop({ navigation }: MyShopProps) {
                 const response = await axios.get(`${API_URL}/items/get-query?SearchTerm=${searchTerm}&ShopId=${shop.shopId}`)
 
                 setItemData(response.data)
-
-                setLoading(false)
-                setRefreshing(false)
             }
         } catch (e) {
-            console.log(e)
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+            console.error("Error fetching items:", e);
         }
+
     }
+    useFocusEffect(
+        useCallback(() => {
+            setLoading(true)
+            setRefreshing(true)
+            getShop()
+            getItems()
+        }, [])
+    );
 
     const onRefresh = useCallback(() => {
-        setLoading(true)
-        setRefreshing(true)
-        getShop()
-        getItems()
-    }, [])
+        setLoading(true);
+        setRefreshing(true);
+        getShop();
+    }, []);
+
+    /** Panggil data toko saat user sudah tersedia */
     useEffect(() => {
         if (user?.userId) {
-            getShop()
+            getShop();
         }
+    }, [user?.userId]);
 
-    }, [user?.userId])
+    /** Panggil data items saat shop sudah tersedia */
     useEffect(() => {
         if (shop?.shopId) {
-            getItems()
-            setName(shop.shopName)
-            setDescription(shop.description)
-            setAddress(shop.address)
-        }
 
-    }, [shop])
+            getItems();
+            setName(shop.shopName);
+            setDescription(shop.description);
+            setAddress(shop.address);
+        }
+    }, [shop]);
+
+    useEffect(() => {
+        if (!shop) return;
+        const hasChanged =
+            shop.shopName !== name ||
+            shop.address !== address ||
+            shop.description !== description;
+
+        setChanged(hasChanged);
+    }, [name, description, address]);
+
     const handleSearch = async () => {
-        setLoading(true)
-        await getItems()
-        setLoading(false)
-    }
+        setLoading(true);
+        if (shop?.shopId) await getItems();
+        setLoading(false);
+    };
+
+    /** Jika masih loading */
     if (loading) {
-        return (
-            <ActivityIndicator size="small" color="#636C7C" style={{ marginTop: 32 }} />
-        )
+        return <ActivityIndicator size="large" color="#636C7C" style={{ marginTop: 32 }} />;
     }
-    if (shop == null) {
+
+    /** Jika user belum punya shop, tampilkan UI khusus */
+    if (!shop) {
         return (
-            <View>
-                <Text>Nigga bitch ass</Text>
+            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 32 }}>
+                <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>You don't have a shop</Text>
+                <Text style={{ color: "white", marginBottom: 16 }}>Create your shop here vro</Text>
+                <GreenButton title={"Create Shop"} onPress={() => navigation.navigate("CreateShop")} />
             </View>
-        )
+        );
     }
     return (
-
         <View>
             <View style={{ padding: 5, paddingLeft: 10, paddingRight: 10 }}>
                 <SearchBar onChangeText={setSearchTerm} placeholder="Search in shop..." onSubmitEditing={() => handleSearch()} returnKeyType="search" />
@@ -138,7 +168,7 @@ export default function MyShop({ navigation }: MyShopProps) {
                                     <TextInputComponent placeholder="Shop Description" onChangeText={setDescription} value={description} />
                                     <Text style={{ color: "white", fontSize: 16, fontWeight: 'bold' }}>Shop Address</Text>
                                     <TextInputComponent placeholder="Shop Address" onChangeText={setAddress} value={address} />
-                                    
+
                                     <StarRating stars={shop.rating} />
                                 </View>
                                 <GreenButton title={"Save Shop Changes"} onPress={handleShopUpdate} />
@@ -161,4 +191,5 @@ export default function MyShop({ navigation }: MyShopProps) {
 
         </View>
     )
+
 }

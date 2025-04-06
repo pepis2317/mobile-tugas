@@ -27,7 +27,9 @@ export interface User {
 const TOKEN_KEY = "access_token"
 const REFRESH_TOKEN_KEY = "refresh_token"
 const USER_DATA_KEY = "user_data"
-export const API_URL = "http://192.168.68.231:5252/api/v1"
+
+export const API_URL = "http://192.168.1.3:5252/api/v1"
+
 const AuthContext = createContext<AuthProps>({})
 
 export const useAuth = () => {
@@ -70,12 +72,9 @@ export default function AuthProvider({ children }: any) {
     }
     const login = async (email: string, password: string) => {
         try {
-            const result = await axios.post(`${API_URL}/user-login`, null, {
-                params: {
-                    Email: email,
-                    Password: password
-                }
-            })
+            console.log("im here")
+            const result = await axios.post(`${API_URL}/user-login?Email=${encodeURIComponent(email)}&Password=${encodeURIComponent(password)}`)
+            
 
             let token = result.data.token
             let refreshToken = result.data.refreshToken

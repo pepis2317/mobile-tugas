@@ -9,6 +9,7 @@ import axios from "axios";
 import { API_URL, useAuth } from "../context/AuthContext";
 import { ShopResponse } from "../../models/ShopResponse";
 import GreenButton from "../../components/GreenButton";
+import { UserResponse } from "../../models/UserResponse";
 type ItemDetailProps = NativeStackScreenProps<RootStackParamList, "ItemDetail">
 const screenWidth = Dimensions.get("window").width;
 export default function ItemDetail({ navigation, route }: ItemDetailProps) {
@@ -16,7 +17,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
     const { item } = route.params
     const [images, setImages] = useState<string[]>([])
     const [shopData, setShopData] = useState<ShopResponse>()
-    const [ownerPfp, setOwnerPfp] = useState("")
+    const [owner, setOwner] = useState<UserResponse>()
     const [quantity, setQuantity] = useState(1)
     const [inCart, setInCart] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -39,10 +40,11 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const getOwner = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-user-by-id?UserId=${shopData?.ownerId}`)
-            setOwnerPfp(response.data.userProfile)
+            setOwner(response.data)
         } catch (e) {
             console.log(e)
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
@@ -83,6 +85,30 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
         }
 
     }
+    const initializeChat = async () => {
+        try {
+            const response = await axios.post(`${API_URL}/chat/initiate`, {
+                senderId: user?.userId,
+                receiverId: owner?.userId
+            })
+            setLoading(false)
+            return response.data
+        } catch (e) {
+            console.log(e)
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+    const handleInitializeChatpress = async () => {
+        if (user?.userId && owner?.userId) {
+            const response = await initializeChat()
+            if(response.error){
+                console.log("Oh shit mb")
+            }else{
+                navigation.navigate("Chat",{ChatId:response.chatId})
+            }
+        }
+
+    }
     useEffect(() => {
         getImages()
         getShopData()
@@ -115,20 +141,20 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
                 {shopData ?
                     <TouchableOpacity style={styles.shopInfo} onPress={() => navigation.navigate("Shop", { shop: shopData })}>
                         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                            <Image source={ownerPfp != "" ? { uri: ownerPfp } : require('../../assets/default.jpg')} style={styles.pfp} />
+                            <Image source={owner?.userProfile != "" ? { uri: owner?.userProfile } : require('../../assets/default.jpg')} style={styles.pfp} />
                             <View>
                                 <Text style={{ color: "white", fontWeight: 'bold', fontSize: 16 }} numberOfLines={2} ellipsizeMode="tail">{shopData.shopName}</Text>
                                 <Text style={{ color: 'white' }} numberOfLines={1} ellipsizeMode="tail">Located in {shopData.address}</Text>
                             </View>
                         </View>
                         <View style={{ gap: 5, flexDirection: "row" }}>
-                            <TouchableOpacity style={styles.contact}>
+                            <TouchableOpacity style={styles.contact} onPress={handleInitializeChatpress}>
                                 <MessageCircle color={"white"} size={24} />
                             </TouchableOpacity>
                         </View>
 
                     </TouchableOpacity> :
-                    <View style={{marginBottom:20}}>
+                    <View style={{ marginBottom: 20 }}>
                         <ActivityIndicator size="small" color="#636C7C" />
                     </View>}
                 {inCart ? <GreenButton title="View in cart" onPress={() => navigation.navigate("Cart")} /> :
