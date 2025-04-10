@@ -166,7 +166,7 @@ export default function ItemDetail({ navigation, route }: ItemDetailProps) {
                             <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
                                 {quantity}
                             </Text>
-                            <TouchableOpacity style={styles.quantityButton} onPress={() => setQuantity(quantity + 1)}>
+                            <TouchableOpacity style={styles.quantityButton} onPress={() => quantity< item.quantity?setQuantity(quantity + 1):setQuantity(quantity)}>
                                 <Plus size={20} color={"white"} />
                             </TouchableOpacity>
                         </View>
